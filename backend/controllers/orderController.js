@@ -1,6 +1,8 @@
+const mongoose = require('mongoose');
 const Order = require('../models/Order');
 const MenuItem = require('../models/MenuItem');
 const User = require('../models/User');
+const { sendSuccess, sendError } = require('../utils/responseHandler');
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -11,25 +13,37 @@ const createOrder = async (req, res) => {
     
     let customerId = req.user.id;
     if (req.user.role === 'admin' && req.body.customer) {
+      if (!mongoose.Types.ObjectId.isValid(req.body.customer)) {
+        return sendError(res, 'Invalid customer ID format.', null, 400);
+      }
       customerId = req.body.customer;
+      
+      const customerExists = await User.exists({ _id: customerId });
+      if (!customerExists) {
+        return sendError(res, 'Customer user not found.', null, 404);
+      }
     }
+
+    // Optimize DB Performance: Fetch all menu items in a single query
+    const menuItemIds = items.map(item => item.menuItem);
+    const dbMenuItems = await MenuItem.find({ _id: { $in: menuItemIds } });
+
+    // Store in map for fast lookup
+    const menuItemMap = new Map();
+    dbMenuItems.forEach(item => {
+      menuItemMap.set(item._id.toString(), item);
+    });
 
     const enrichedItems = [];
     let calculatedTotal = 0;
 
     for (const item of items) {
-      const dbMenuItem = await MenuItem.findById(item.menuItem);
+      const dbMenuItem = menuItemMap.get(item.menuItem.toString());
       if (!dbMenuItem) {
-        return res.status(404).json({
-          success: false,
-          message: `Menu item with ID ${item.menuItem} not found.`
-        });
+        return sendError(res, `Menu item with ID ${item.menuItem} not found.`, null, 404);
       }
       if (!dbMenuItem.isAvailable) {
-        return res.status(400).json({
-          success: false,
-          message: `Menu item '${dbMenuItem.name}' is currently unavailable.`
-        });
+        return sendError(res, `Menu item '${dbMenuItem.name}' is currently unavailable.`, null, 400);
       }
 
       const itemPrice = dbMenuItem.price;
@@ -52,16 +66,9 @@ const createOrder = async (req, res) => {
 
     await newOrder.save();
 
-    return res.status(201).json({
-      success: true,
-      message: 'Success',
-      data: newOrder
-    });
+    return sendSuccess(res, 'Success', newOrder, 201);
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message || 'Error'
-    });
+    return sendError(res, error.message || 'Error', null, 500);
   }
 };
 
@@ -78,19 +85,30 @@ const getOrders = async (req, res) => {
       query.customer = req.user.id;
     }
 
+    // Security check: Validate & sanitize status query input to prevent NoSQL query injection
+    const allowedStatuses = ['Pending', 'Confirmed', 'Preparing', 'Ready', 'Delivered', 'Cancelled'];
     if (status) {
-      query.status = status;
+      if (allowedStatuses.includes(status)) {
+        query.status = status;
+      } else {
+        return sendError(res, `Invalid status filter. Must be one of: ${allowedStatuses.join(', ')}`, null, 400);
+      }
     }
 
-    const pageNum = parseInt(page, 10);
-    const limitNum = parseInt(limit, 10);
+    // Security check: Normalize pagination inputs and cap limit
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.max(1, Math.min(100, parseInt(limit, 10) || 10));
     const skip = (pageNum - 1) * limitNum;
 
+    // Security check: Whitelist sorting options to avoid arbitrary field manipulation
+    const allowedSortFields = ['createdAt', 'total', 'status'];
     let sortOption = { createdAt: -1 };
-    if (sort) {
+    if (sort && typeof sort === 'string') {
       const sortField = sort.startsWith('-') ? sort.substring(1) : sort;
-      const sortOrder = sort.startsWith('-') ? -1 : 1;
-      sortOption = { [sortField]: sortOrder };
+      if (allowedSortFields.includes(sortField)) {
+        const sortOrder = sort.startsWith('-') ? -1 : 1;
+        sortOption = { [sortField]: sortOrder };
+      }
     }
 
     const totalOrders = await Order.countDocuments(query);
@@ -101,24 +119,17 @@ const getOrders = async (req, res) => {
       .skip(skip)
       .limit(limitNum);
 
-    return res.status(200).json({
-      success: true,
-      message: 'Success',
-      data: {
-        orders,
-        pagination: {
-          total: totalOrders,
-          page: pageNum,
-          limit: limitNum,
-          pages: Math.ceil(totalOrders / limitNum)
-        }
+    return sendSuccess(res, 'Success', {
+      orders,
+      pagination: {
+        total: totalOrders,
+        page: pageNum,
+        limit: limitNum,
+        pages: Math.ceil(totalOrders / limitNum)
       }
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message || 'Error'
-    });
+    return sendError(res, error.message || 'Error', null, 500);
   }
 };
 
@@ -128,34 +139,29 @@ const getOrders = async (req, res) => {
 const getOrderById = async (req, res) => {
   try {
     const orderId = req.params.id;
+
+    // Validate ID to prevent CastError/crash and NoSQL injection
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      return sendError(res, 'Invalid order ID format.', null, 400);
+    }
+
     const order = await Order.findById(orderId)
       .populate('customer', 'name email role')
       .populate('items.menuItem', 'name price description');
 
     if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: 'Order not found.'
-      });
+      return sendError(res, 'Order not found.', null, 404);
     }
 
-    if (req.user.role === 'customer' && order.customer._id.toString() !== req.user.id) {
-      return res.status(403).json({
-        success: false,
-        message: 'Access denied. You can only view your own orders.'
-      });
+    // Secure checking of customer ID to prevent crashing if customer field is unpopulated or missing
+    const orderCustomerId = order.customer?._id?.toString() || order.customer?.toString();
+    if (req.user.role === 'customer' && orderCustomerId !== req.user.id) {
+      return sendError(res, 'Access denied. You can only view your own orders.', null, 403);
     }
 
-    return res.status(200).json({
-      success: true,
-      message: 'Success',
-      data: order
-    });
+    return sendSuccess(res, 'Success', order);
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message || 'Error'
-    });
+    return sendError(res, error.message || 'Error', null, 500);
   }
 };
 
@@ -167,31 +173,28 @@ const updateOrderStatus = async (req, res) => {
     const { status } = req.body;
     const orderId = req.params.id;
 
+    // Validate ID format
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      return sendError(res, 'Invalid order ID format.', null, 400);
+    }
+
     const order = await Order.findById(orderId);
     if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: 'Order not found.'
-      });
+      return sendError(res, 'Order not found.', null, 404);
     }
 
     order.status = status;
     await order.save();
 
-    const updatedOrder = await Order.findById(orderId)
-      .populate('customer', 'name email role')
-      .populate('items.menuItem', 'name price');
+    // Optimize DB Performance: Populate saved document directly, eliminating the secondary query
+    await order.populate([
+      { path: 'customer', select: 'name email role' },
+      { path: 'items.menuItem', select: 'name price' }
+    ]);
 
-    return res.status(200).json({
-      success: true,
-      message: 'Success',
-      data: updatedOrder
-    });
+    return sendSuccess(res, 'Success', order);
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message || 'Error'
-    });
+    return sendError(res, error.message || 'Error', null, 500);
   }
 };
 
@@ -201,25 +204,20 @@ const updateOrderStatus = async (req, res) => {
 const deleteOrder = async (req, res) => {
   try {
     const orderId = req.params.id;
-    const order = await Order.findByIdAndDelete(orderId);
 
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: 'Order not found.'
-      });
+    // Validate ID format
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      return sendError(res, 'Invalid order ID format.', null, 400);
     }
 
-    return res.status(200).json({
-      success: true,
-      message: 'Success',
-      data: {}
-    });
+    const order = await Order.findByIdAndDelete(orderId);
+    if (!order) {
+      return sendError(res, 'Order not found.', null, 404);
+    }
+
+    return sendSuccess(res, 'Order deleted successfully.', {});
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message || 'Error'
-    });
+    return sendError(res, error.message || 'Error', null, 500);
   }
 };
 

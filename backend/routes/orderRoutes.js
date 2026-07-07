@@ -10,7 +10,7 @@ const {
 } = require('../controllers/orderController');
 
 const { 
-  authenticateJWT, 
+  bypassAuth, 
   authorizeRoles 
 } = require('../middlewares/auth');
 
@@ -19,22 +19,11 @@ const {
   validateUpdateStatus 
 } = require('../validators/order.validator');
 
-// TEMPORARY: auth disabled for local testing
-const bypassAuth = (req, res, next) => {
-  req.user = {
-    id: req.headers['x-user-id'] || '60c72b2f9b1d8b2a3c8e4d14',
-    role: req.headers['x-user-role'] || 'admin'
-  };
-  next();
-};
-
 // Create a new order (customer & admin)
 router.post(
   '/', 
-  // TEMPORARY: auth disabled for local testing
-  // authenticateJWT, 
-  // authorizeRoles('customer', 'admin'), 
   bypassAuth,
+  authorizeRoles('customer', 'admin'), 
   validateCreateOrder, 
   createOrder
 );
@@ -42,30 +31,24 @@ router.post(
 // View list of orders (customer sees own, manager & admin see all)
 router.get(
   '/', 
-  // TEMPORARY: auth disabled for local testing
-  // authenticateJWT, 
-  // authorizeRoles('customer', 'manager', 'admin'), 
   bypassAuth,
+  authorizeRoles('customer', 'manager', 'admin'), 
   getOrders
 );
 
 // View single order detail (customer sees own, manager & admin see any)
 router.get(
   '/:id', 
-  // TEMPORARY: auth disabled for local testing
-  // authenticateJWT, 
-  // authorizeRoles('customer', 'manager', 'admin'), 
   bypassAuth,
+  authorizeRoles('customer', 'manager', 'admin'), 
   getOrderById
 );
 
 // Update order status (manager & admin only)
 router.put(
   '/:id/status', 
-  // TEMPORARY: auth disabled for local testing
-  // authenticateJWT, 
-  // authorizeRoles('manager', 'admin'), 
   bypassAuth,
+  authorizeRoles('manager', 'admin'), 
   validateUpdateStatus, 
   updateOrderStatus
 );
@@ -73,10 +56,8 @@ router.put(
 // Delete an order (admin only)
 router.delete(
   '/:id', 
-  // TEMPORARY: auth disabled for local testing
-  // authenticateJWT, 
-  // authorizeRoles('admin'), 
   bypassAuth,
+  authorizeRoles('admin'), 
   deleteOrder
 );
 

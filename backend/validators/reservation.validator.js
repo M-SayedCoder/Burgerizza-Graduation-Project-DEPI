@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { sendError } = require('../utils/responseHandler');
 
 const isDateValidAndFuture = (dateStr) => {
   const dateObj = new Date(dateStr);
@@ -6,10 +7,10 @@ const isDateValidAndFuture = (dateStr) => {
     return false;
   }
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  today.setUTCHours(0, 0, 0, 0);
   
   const reservationDate = new Date(dateObj);
-  reservationDate.setHours(0, 0, 0, 0);
+  reservationDate.setUTCHours(0, 0, 0, 0);
   
   return reservationDate >= today;
 };
@@ -23,45 +24,27 @@ const validateCreateReservation = (req, res, next) => {
   const { date, time, partySize } = req.body;
 
   if (!date) {
-    return res.status(400).json({
-      success: false,
-      message: 'Date is required.'
-    });
+    return sendError(res, 'Date is required.', null, 400);
   }
 
   if (!isDateValidAndFuture(date)) {
-    return res.status(400).json({
-      success: false,
-      message: 'Invalid date. Date must be today or in the future.'
-    });
+    return sendError(res, 'Invalid date. Date must be today or in the future.', null, 400);
   }
 
   if (!time) {
-    return res.status(400).json({
-      success: false,
-      message: 'Time is required.'
-    });
+    return sendError(res, 'Time is required.', null, 400);
   }
 
   if (!isTimeValid(time)) {
-    return res.status(400).json({
-      success: false,
-      message: 'Invalid time format. Use HH:MM (24-hour format, e.g., 19:30).'
-    });
+    return sendError(res, 'Invalid time format. Use HH:MM (24-hour format, e.g., 19:30).', null, 400);
   }
 
   if (partySize === undefined) {
-    return res.status(400).json({
-      success: false,
-      message: 'Party size is required.'
-    });
+    return sendError(res, 'Party size is required.', null, 400);
   }
 
   if (typeof partySize !== 'number' || partySize <= 0 || !Number.isInteger(partySize)) {
-    return res.status(400).json({
-      success: false,
-      message: 'Party size must be a positive integer.'
-    });
+    return sendError(res, 'Party size must be a positive integer.', null, 400);
   }
 
   next();
@@ -71,24 +54,15 @@ const validateUpdateReservation = (req, res, next) => {
   const { date, time, partySize } = req.body;
 
   if (date !== undefined && !isDateValidAndFuture(date)) {
-    return res.status(400).json({
-      success: false,
-      message: 'Invalid date. Date must be today or in the future.'
-    });
+    return sendError(res, 'Invalid date. Date must be today or in the future.', null, 400);
   }
 
   if (time !== undefined && !isTimeValid(time)) {
-    return res.status(400).json({
-      success: false,
-      message: 'Invalid time format. Use HH:MM (24-hour format, e.g., 19:30).'
-    });
+    return sendError(res, 'Invalid time format. Use HH:MM (24-hour format, e.g., 19:30).', null, 400);
   }
 
   if (partySize !== undefined && (typeof partySize !== 'number' || partySize <= 0 || !Number.isInteger(partySize))) {
-    return res.status(400).json({
-      success: false,
-      message: 'Party size must be a positive integer.'
-    });
+    return sendError(res, 'Party size must be a positive integer.', null, 400);
   }
 
   next();
@@ -99,17 +73,11 @@ const validateUpdateReservationStatus = (req, res, next) => {
   const allowedStatuses = ['Pending', 'Confirmed', 'Rejected', 'Cancelled'];
 
   if (!status) {
-    return res.status(400).json({
-      success: false,
-      message: 'Status is required.'
-    });
+    return sendError(res, 'Status is required.', null, 400);
   }
 
   if (!allowedStatuses.includes(status)) {
-    return res.status(400).json({
-      success: false,
-      message: `Invalid status. Must be one of: ${allowedStatuses.join(', ')}`
-    });
+    return sendError(res, `Invalid status. Must be one of: ${allowedStatuses.join(', ')}`, null, 400);
   }
 
   next();
