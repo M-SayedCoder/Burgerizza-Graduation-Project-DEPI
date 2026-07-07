@@ -1,5 +1,7 @@
+const mongoose = require('mongoose');
 const Reservation = require('../models/Reservation');
 const User = require('../models/User');
+const { sendSuccess, sendError } = require('../utils/responseHandler');
 
 // @desc    Create reservation
 // @route   POST /api/reservations
@@ -10,7 +12,15 @@ const createReservation = async (req, res) => {
     
     let customerId = req.user.id;
     if (req.user.role === 'admin' && req.body.customer) {
+      if (!mongoose.Types.ObjectId.isValid(req.body.customer)) {
+        return sendError(res, 'Invalid customer ID format.', null, 400);
+      }
       customerId = req.body.customer;
+      
+      const customerExists = await User.exists({ _id: customerId });
+      if (!customerExists) {
+        return sendError(res, 'Customer user not found.', null, 404);
+      }
     }
 
     const normalizedDate = new Date(date);
@@ -24,10 +34,7 @@ const createReservation = async (req, res) => {
     });
 
     if (conflict) {
-      return res.status(409).json({
-        success: false,
-        message: 'Conflict: An active reservation (Pending/Confirmed) already exists for this date and time.'
-      });
+      return sendError(res, 'Conflict: An active reservation (Pending/Confirmed) already exists for this date and time.', null, 409);
     }
 
     const newReservation = new Reservation({
@@ -41,16 +48,9 @@ const createReservation = async (req, res) => {
 
     await newReservation.save();
 
-    return res.status(201).json({
-      success: true,
-      message: 'Success',
-      data: newReservation
-    });
+    return sendSuccess(res, 'Success', newReservation, 201);
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message || 'Error'
-    });
+    return sendError(res, error.message || 'Error', null, 500);
   }
 };
 
@@ -67,19 +67,30 @@ const getReservations = async (req, res) => {
       query.customer = req.user.id;
     }
 
+    // Security check: Validate & sanitize status query input to prevent NoSQL query injection
+    const allowedStatuses = ['Pending', 'Confirmed', 'Rejected', 'Cancelled'];
     if (status) {
-      query.status = status;
+      if (allowedStatuses.includes(status)) {
+        query.status = status;
+      } else {
+        return sendError(res, `Invalid status filter. Must be one of: ${allowedStatuses.join(', ')}`, null, 400);
+      }
     }
 
-    const pageNum = parseInt(page, 10);
-    const limitNum = parseInt(limit, 10);
+    // Security check: Normalize pagination inputs and cap limit
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.max(1, Math.min(100, parseInt(limit, 10) || 10));
     const skip = (pageNum - 1) * limitNum;
 
+    // Security check: Whitelist sorting options to avoid arbitrary field manipulation
+    const allowedSortFields = ['date', 'time', 'partySize', 'status', 'createdAt'];
     let sortOption = { date: 1, time: 1 };
-    if (sort) {
+    if (sort && typeof sort === 'string') {
       const sortField = sort.startsWith('-') ? sort.substring(1) : sort;
-      const sortOrder = sort.startsWith('-') ? -1 : 1;
-      sortOption = { [sortField]: sortOrder };
+      if (allowedSortFields.includes(sortField)) {
+        const sortOrder = sort.startsWith('-') ? -1 : 1;
+        sortOption = { [sortField]: sortOrder };
+      }
     }
 
     const totalReservations = await Reservation.countDocuments(query);
@@ -89,24 +100,17 @@ const getReservations = async (req, res) => {
       .skip(skip)
       .limit(limitNum);
 
-    return res.status(200).json({
-      success: true,
-      message: 'Success',
-      data: {
-        reservations,
-        pagination: {
-          total: totalReservations,
-          page: pageNum,
-          limit: limitNum,
-          pages: Math.ceil(totalReservations / limitNum)
-        }
+    return sendSuccess(res, 'Success', {
+      reservations,
+      pagination: {
+        total: totalReservations,
+        page: pageNum,
+        limit: limitNum,
+        pages: Math.ceil(totalReservations / limitNum)
       }
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message || 'Error'
-    });
+    return sendError(res, error.message || 'Error', null, 500);
   }
 };
 
@@ -116,33 +120,28 @@ const getReservations = async (req, res) => {
 const getReservationById = async (req, res) => {
   try {
     const reservationId = req.params.id;
+
+    // Validate ID to prevent CastError/crash and NoSQL injection
+    if (!mongoose.Types.ObjectId.isValid(reservationId)) {
+      return sendError(res, 'Invalid reservation ID format.', null, 400);
+    }
+
     const reservation = await Reservation.findById(reservationId)
       .populate('customer', 'name email role');
 
     if (!reservation) {
-      return res.status(404).json({
-        success: false,
-        message: 'Reservation not found.'
-      });
+      return sendError(res, 'Reservation not found.', null, 404);
     }
 
-    if (req.user.role === 'customer' && reservation.customer._id.toString() !== req.user.id) {
-      return res.status(403).json({
-        success: false,
-        message: 'Access denied. You can only view your own reservations.'
-      });
+    // Secure checking of customer ID to prevent crashing if customer field is unpopulated or missing
+    const reservationCustomerId = reservation.customer?._id?.toString() || reservation.customer?.toString();
+    if (req.user.role === 'customer' && reservationCustomerId !== req.user.id) {
+      return sendError(res, 'Access denied. You can only view your own reservations.', null, 403);
     }
 
-    return res.status(200).json({
-      success: true,
-      message: 'Success',
-      data: reservation
-    });
+    return sendSuccess(res, 'Success', reservation);
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message || 'Error'
-    });
+    return sendError(res, error.message || 'Error', null, 500);
   }
 };
 
@@ -154,26 +153,24 @@ const updateReservation = async (req, res) => {
     const reservationId = req.params.id;
     const { date, time, partySize, notes } = req.body;
 
-    const reservation = await Reservation.findById(reservationId);
-    if (!reservation) {
-      return res.status(404).json({
-        success: false,
-        message: 'Reservation not found.'
-      });
+    // Validate ID format
+    if (!mongoose.Types.ObjectId.isValid(reservationId)) {
+      return sendError(res, 'Invalid reservation ID format.', null, 400);
     }
 
-    if (req.user.role === 'customer' && reservation.customer.toString() !== req.user.id) {
-      return res.status(403).json({
-        success: false,
-        message: 'Access denied. You can only edit your own reservations.'
-      });
+    const reservation = await Reservation.findById(reservationId);
+    if (!reservation) {
+      return sendError(res, 'Reservation not found.', null, 404);
+    }
+
+    // Secure checking of customer ID
+    const reservationCustomerId = reservation.customer?._id?.toString() || reservation.customer?.toString();
+    if (req.user.role === 'customer' && reservationCustomerId !== req.user.id) {
+      return sendError(res, 'Access denied. You can only edit your own reservations.', null, 403);
     }
 
     if (reservation.status !== 'Pending') {
-      return res.status(400).json({
-        success: false,
-        message: 'Only pending reservations can be modified.'
-      });
+      return sendError(res, 'Only pending reservations can be modified.', null, 400);
     }
 
     const targetDate = date ? new Date(date) : reservation.date;
@@ -192,10 +189,7 @@ const updateReservation = async (req, res) => {
       });
 
       if (conflict) {
-        return res.status(409).json({
-          success: false,
-          message: 'Conflict: Another active reservation exists at the requested date and time.'
-        });
+        return sendError(res, 'Conflict: Another active reservation exists at the requested date and time.', null, 409);
       }
     }
 
@@ -205,17 +199,11 @@ const updateReservation = async (req, res) => {
     if (notes !== undefined) reservation.notes = notes;
 
     await reservation.save();
+    await reservation.populate('customer', 'name email role');
 
-    return res.status(200).json({
-      success: true,
-      message: 'Success',
-      data: reservation
-    });
+    return sendSuccess(res, 'Success', reservation);
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message || 'Error'
-    });
+    return sendError(res, error.message || 'Error', null, 500);
   }
 };
 
@@ -227,30 +215,25 @@ const updateReservationStatus = async (req, res) => {
     const reservationId = req.params.id;
     const { status } = req.body;
 
+    // Validate ID format
+    if (!mongoose.Types.ObjectId.isValid(reservationId)) {
+      return sendError(res, 'Invalid reservation ID format.', null, 400);
+    }
+
     const reservation = await Reservation.findById(reservationId);
     if (!reservation) {
-      return res.status(404).json({
-        success: false,
-        message: 'Reservation not found.'
-      });
+      return sendError(res, 'Reservation not found.', null, 404);
     }
 
     reservation.status = status;
     await reservation.save();
 
-    const updatedReservation = await Reservation.findById(reservationId)
-      .populate('customer', 'name email role');
+    // Optimize DB Performance: Populate saved document directly, eliminating the secondary query
+    await reservation.populate('customer', 'name email role');
 
-    return res.status(200).json({
-      success: true,
-      message: 'Success',
-      data: updatedReservation
-    });
+    return sendSuccess(res, 'Success', reservation);
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message || 'Error'
-    });
+    return sendError(res, error.message || 'Error', null, 500);
   }
 };
 
@@ -260,25 +243,20 @@ const updateReservationStatus = async (req, res) => {
 const deleteReservation = async (req, res) => {
   try {
     const reservationId = req.params.id;
-    const reservation = await Reservation.findByIdAndDelete(reservationId);
 
-    if (!reservation) {
-      return res.status(404).json({
-        success: false,
-        message: 'Reservation not found.'
-      });
+    // Validate ID format
+    if (!mongoose.Types.ObjectId.isValid(reservationId)) {
+      return sendError(res, 'Invalid reservation ID format.', null, 400);
     }
 
-    return res.status(200).json({
-      success: true,
-      message: 'Success',
-      data: {}
-    });
+    const reservation = await Reservation.findByIdAndDelete(reservationId);
+    if (!reservation) {
+      return sendError(res, 'Reservation not found.', null, 404);
+    }
+
+    return sendSuccess(res, 'Reservation deleted successfully.', {});
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message || 'Error'
-    });
+    return sendError(res, error.message || 'Error', null, 500);
   }
 };
 
