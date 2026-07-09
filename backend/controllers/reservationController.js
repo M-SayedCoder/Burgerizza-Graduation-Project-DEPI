@@ -151,7 +151,7 @@ const getReservationById = async (req, res) => {
 const updateReservation = async (req, res) => {
   try {
     const reservationId = req.params.id;
-    const { date, time, partySize, notes } = req.body;
+    const { date, time, partySize, notes, status } = req.body;
 
     // Validate ID format
     if (!mongoose.Types.ObjectId.isValid(reservationId)) {
@@ -169,8 +169,33 @@ const updateReservation = async (req, res) => {
       return sendError(res, 'Access denied. You can only edit your own reservations.', null, 403);
     }
 
-    if (reservation.status !== 'Pending') {
-      return sendError(res, 'Only pending reservations can be modified.', null, 400);
+    // State transition checks
+    if (status !== undefined) {
+      if (reservation.status === 'Cancelled' || reservation.status === 'Rejected') {
+        return sendError(res, `Cannot change status of a ${reservation.status.toLowerCase()} reservation.`, null, 400);
+      }
+
+      if (req.user.role === 'customer' && status !== 'Cancelled') {
+        return sendError(res, 'Access denied. Customers can only transition status to Cancelled.', null, 403);
+      }
+
+      if (reservation.status !== 'Pending') {
+        // If not Pending (e.g. Confirmed), only status change to Cancelled is allowed; other changes are rejected.
+        if (date !== undefined || time !== undefined || partySize !== undefined || notes !== undefined) {
+          return sendError(res, 'Only pending reservations can be modified.', null, 400);
+        }
+      }
+
+      if (reservation.status === 'Confirmed' && status !== 'Cancelled') {
+        return sendError(res, 'Confirmed reservations can only be transitioned to Cancelled.', null, 400);
+      }
+
+      reservation.status = status;
+    } else {
+      // If status is not provided, and reservation status is not Pending, reject editing
+      if (reservation.status !== 'Pending') {
+        return sendError(res, 'Only pending reservations can be modified.', null, 400);
+      }
     }
 
     const targetDate = date ? new Date(date) : reservation.date;
@@ -223,6 +248,15 @@ const updateReservationStatus = async (req, res) => {
     const reservation = await Reservation.findById(reservationId);
     if (!reservation) {
       return sendError(res, 'Reservation not found.', null, 404);
+    }
+
+    // State transition checks
+    if (reservation.status === 'Cancelled' || reservation.status === 'Rejected') {
+      return sendError(res, `Cannot change status of a ${reservation.status.toLowerCase()} reservation.`, null, 400);
+    }
+
+    if (reservation.status === 'Confirmed' && status !== 'Cancelled') {
+      return sendError(res, 'Confirmed reservations can only be transitioned to Cancelled.', null, 400);
     }
 
     reservation.status = status;
