@@ -77,7 +77,7 @@ const createOrder = async (req, res) => {
 // @access  Customer (own orders), Manager/Admin (all orders)
 const getOrders = async (req, res) => {
   try {
-    const { status, sort, page = 1, limit = 10 } = req.query;
+    const { status, sort, page = 1, limit = 10, search } = req.query;
 
     const query = {};
 
@@ -92,6 +92,28 @@ const getOrders = async (req, res) => {
         query.status = status;
       } else {
         return sendError(res, `Invalid status filter. Must be one of: ${allowedStatuses.join(', ')}`, null, 400);
+      }
+    }
+
+    // Support searching by customer name or order ID
+    if (search && typeof search === 'string' && search.trim() !== '') {
+      const searchConditions = [];
+      const searchTrimmed = search.trim();
+
+      if (mongoose.Types.ObjectId.isValid(searchTrimmed)) {
+        searchConditions.push({ _id: searchTrimmed });
+      }
+
+      const matchingUsers = await User.find({ name: { $regex: searchTrimmed, $options: 'i' } }).select('_id');
+      const userIds = matchingUsers.map(user => user._id);
+      if (userIds.length > 0) {
+        searchConditions.push({ customer: { $in: userIds } });
+      }
+
+      if (searchConditions.length > 0) {
+        query.$or = searchConditions;
+      } else {
+        query._id = null; // Force empty result if search returns no matches
       }
     }
 

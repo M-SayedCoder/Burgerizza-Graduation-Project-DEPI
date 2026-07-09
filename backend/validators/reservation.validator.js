@@ -51,7 +51,7 @@ const validateCreateReservation = (req, res, next) => {
 };
 
 const validateUpdateReservation = (req, res, next) => {
-  const { date, time, partySize } = req.body;
+  const { date, time, partySize, status } = req.body;
 
   if (date !== undefined && !isDateValidAndFuture(date)) {
     return sendError(res, 'Invalid date. Date must be today or in the future.', null, 400);
@@ -63,6 +63,13 @@ const validateUpdateReservation = (req, res, next) => {
 
   if (partySize !== undefined && (typeof partySize !== 'number' || partySize <= 0 || !Number.isInteger(partySize))) {
     return sendError(res, 'Party size must be a positive integer.', null, 400);
+  }
+
+  if (status !== undefined) {
+    const allowedStatuses = ['Pending', 'Confirmed', 'Rejected', 'Cancelled'];
+    if (!allowedStatuses.includes(status)) {
+      return sendError(res, `Invalid status. Must be one of: ${allowedStatuses.join(', ')}`, null, 400);
+    }
   }
 
   next();

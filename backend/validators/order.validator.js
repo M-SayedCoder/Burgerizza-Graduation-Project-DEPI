@@ -10,6 +10,9 @@ const validateCreateOrder = (req, res, next) => {
 
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
+    if (!item || typeof item !== 'object') {
+      return sendError(res, `Item at index ${i} is invalid.`, null, 400);
+    }
     if (!item.menuItem || !mongoose.Types.ObjectId.isValid(item.menuItem)) {
       return sendError(res, `Item at index ${i} has an invalid or missing menuItem ID.`, null, 400);
     }
