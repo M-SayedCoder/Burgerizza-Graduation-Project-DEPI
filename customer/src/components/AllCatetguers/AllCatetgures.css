@@ -1,0 +1,59 @@
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #0f172a;
+            color: white;
+        }
+
+        h2 {
+            font-weight: 700;
+        }
+
+        /* Tabs */
+        .nav-pills .nav-link {
+            color: white;
+            border-radius: 30px;
+            margin: 5px;
+        }
+
+        .nav-pills .nav-link.active {
+            background-color: #FF6F00;
+        }
+
+        /* Card Style */
+        .card {
+            background-color: #1e293b;
+            border: none;
+            border-radius: 20px;
+            overflow: hidden;
+            transition: 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+        .card-title{
+            color: white;
+        }
+
+        .card img {
+            height: 220px;
+            object-fit: cover;
+        }
+
+        .price {
+            color: #FF6F00;
+            font-weight: bold;
+        }
+
+        .btn-custom {
+            background-color: #FF6F00;
+            border: none;
+            border-radius: 30px;
+            color: white;
+        }
+
+        .btn-custom:hover {
+            background-color: #e65c00;
+        }
