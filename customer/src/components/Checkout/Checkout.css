@@ -1,0 +1,85 @@
+:root {
+  --primary-orange: #FF7A00;
+  --orange-hover: #E96B00;
+  --dark-navy: #1F1D2B;
+  --light-bg: #F8F9FB;
+  --text-dark: #2D2D2D;
+  --border-light: #EAEAEA;
+}
+
+.brand-logo {
+  font-size: 24px;
+  letter-spacing: 1px;
+  
+}
+
+.brand-black {
+  color: #000;
+}
+
+.brand-orange {
+  color: var(--primary-orange);
+}
+.brand-logo {
+  font-size: 26px;
+  font-weight: 800;
+}
+
+body {
+  background-color: var(--light-bg);
+  font-family: 'Segoe UI', sans-serif;
+  color: var(--text-dark);
+}
+
+/* Orange Color */
+.text-orange {
+  color: var(--primary-orange);
+}
+
+/* Button Style */
+.btn-orange {
+  background-color: var(--primary-orange);
+  color: #fff;
+  border-radius: 14px;
+  border: none;
+  transition: 0.3s;
+}
+
+.btn-orange:hover {
+  background-color: var(--orange-hover);
+  color: #fff;
+}
+
+/* Inputs */
+.custom-input {
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
+  padding: 12px;
+}
+
+.custom-input:focus {
+  border-color: var(--primary-orange);
+  box-shadow: none;
+}
+
+/* Quantity */
+.quantity-input {
+  width: 80px;
+}
+
+/* Responsive Typography */
+.product-title {
+  font-size: 22px;
+}
+
+@media (min-width: 768px) {
+  .product-title {
+    font-size: 26px;
+  }
+}
+
+@media (min-width: 992px) {
+  .product-title {
+    font-size: 32px;
+  }
+}
