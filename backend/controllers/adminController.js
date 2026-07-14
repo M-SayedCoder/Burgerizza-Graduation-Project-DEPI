@@ -122,7 +122,7 @@ const getOrdersSummary = async (req, res) => {
             {
               $group: {
                 _id: null,
-                totalRevenue: { $sum: { $cond: [{ $nin: ['$status', ['Cancelled', 'Pending']] }, '$total', 0] } },
+                totalRevenue: { $sum: { $cond: [{ $not: [{ $in: ['$status', ['Cancelled', 'Pending']] }] }, '$total', 0] } },
                 averageOrderValue: { $avg: '$total' }
               }
             }
