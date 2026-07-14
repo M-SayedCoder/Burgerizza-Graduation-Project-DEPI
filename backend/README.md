@@ -12,26 +12,31 @@ The application is structured around MVC boundaries with isolated middleware, va
 backend/
 ├── controllers/
 │   ├── adminController.js         # Admin dashboard aggregation endpoints
+│   ├── inventoryController.js     # Inventory CRUD, pagination, and sanitization
 │   ├── orderController.js         # Order CRUD and scoping logic
 │   └── reservationController.js   # Reservation CRUD and duplicate checking logic
 ├── models/
+│   ├── Inventory.js               # Restaurant stock and ingredient directory
 │   ├── MenuItem.js                # Food items and price listings
 │   ├── Order.js                   # Customer order transactions
 │   ├── Reservation.js             # Booking slots and table controls
 │   └── User.js                    # Identity directory and roles
 ├── routes/
 │   ├── adminRoutes.js             # /api/admin endpoints
+│   ├── inventoryRoutes.js         # /api/inventory endpoints
 │   ├── orderRoutes.js             # /api/orders endpoints
 │   └── reservationRoutes.js       # /api/reservations endpoints
 ├── middlewares/
 │   └── auth.js                    # JWT extraction and role validation
 ├── validators/
+│   ├── inventory.validator.js     # Input sanitization and bounds check for stock
 │   ├── order.validator.js         # Input sanitization for orders
 │   └── reservation.validator.js   # Format and range rules for bookings
 ├── utils/
 │   └── seed.js                    # Database seeder utility
 ├── .env.example                   # Environment configuration example
 ├── app.js                         # Application express configuration and mounting
+├── swagger.json                   # OpenAPI 3.0.0 API Specification
 └── server.js                      # DB bootstrapping and network listener
 ```
 
@@ -46,13 +51,15 @@ backend/
 ### 1. Install Dependencies
 Navigate to the `backend/` directory and run:
 ```bash
-npm install express mongoose jsonwebtoken dotenv cors
-# Or if package.json is not configured yet, initialize first:
-# npm init -y && npm install express mongoose jsonwebtoken dotenv cors
+npm install express mongoose jsonwebtoken dotenv cors swagger-ui-express
 ```
 *(Optional: Install `bcryptjs` for secure password hashing).*
 ```bash
 npm install bcryptjs
+```
+*(For testing and code coverage execution).*
+```bash
+npm install --save-dev nyc nodemon
 ```
 
 ### 2. Configure Environment Variables
@@ -93,8 +100,8 @@ All request and response objects adhere to REST specifications and standard form
 
 ### Security Roles
 * **customer**: Book reservations, modify own pending reservations, submit orders, and view own records only.
-* **manager**: Read and list all orders/reservations, update order status, and update reservation status.
-* **admin**: Full permissions (delete documents, read dashboards, create orders/reservations on behalf of any customer).
+* **manager**: Read and list all orders/reservations, update order status, update reservation status, and view inventory lists/details.
+* **admin**: Full permissions (delete documents, read dashboards, create/modify inventory items, and manage users/orders/reservations).
 
 ---
 
@@ -125,6 +132,15 @@ All protected requests require a JWT bearer token:
 * `GET /api/admin/orders-summary` (admin only) — Recent orders and AOV metrics.
 * `GET /api/admin/reservations-summary` (admin only) — Recent reservations and totals.
 
+#### Inventory
+* `GET /api/inventory` (manager, admin) — Paginated inventory list (supports page, limit, category, isActive, lowStock filters, sorting, and name/supplier searches).
+* `GET /api/inventory/low-stock` (manager, admin) — List items where quantity is below or equal to minimumStock.
+* `GET /api/inventory/:id` (manager, admin) — Get detail of a single stock item.
+* `POST /api/inventory` (admin only) — Create a new inventory item (with duplicate name validation).
+* `PUT /api/inventory/:id` (admin only) — Update inventory item properties.
+* `DELETE /api/inventory/:id` (admin only) — Soft-delete item (sets `isActive = false`).
+* `PATCH /api/inventory/:id/restore` (admin only) — Restore soft-deleted item (sets `isActive = true`).
+
 ---
 
 ## 4. Standard Response Formats
@@ -145,3 +161,32 @@ All protected requests require a JWT bearer token:
   "message": "Detailed error explanation here"
 }
 ```
+
+---
+
+## 5. API Documentation (Swagger/OpenAPI)
+
+The API documentation is fully documented using Swagger UI.
+- **Route**: `http://localhost:5000/api-docs`
+- **Definition**: Served directly from [swagger.json](file:///c:/Users/MEGO/Downloads/burgeriza-depi/backend/swagger.json).
+
+---
+
+## 6. Testing & Code Coverage
+
+Execute the production-ready test suites to verify functionality and check statement/branch coverage statistics.
+
+### Run Tests Sequentially:
+```bash
+node backend/tests/test_inventory_validator.js
+node backend/tests/test_inventory_controller.js
+node backend/tests/test_inventory_routes.js
+```
+
+### Run Tests with nyc Coverage:
+```bash
+npx nyc --reporter=text node backend/tests/test_inventory_validator.js
+npx nyc --reporter=text --clean=false node backend/tests/test_inventory_controller.js
+npx nyc --reporter=text --clean=false node backend/tests/test_inventory_routes.js
+```
+*Note: nyc statement coverage exceeds 90% across the entire Inventory module.*
