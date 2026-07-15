@@ -1,20 +1,51 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import AdminDashboard from "./pages/AdminDashboard";
-import AddMenuItem from "./pages/AddMenuItem";
-import AdminMenu from "./pages/AdminMenu";
 import AdminOrders from "./pages/AdminOrders";
-import AdminProfile from "./pages/AdminProfile";
-import AdminCustomers from "./pages/AdminCustomers";
+import OrderDetails from "./pages/OrderDetails";
+import AdminReservations from "./pages/AdminReservations";
+import ReservationDetails from "./pages/ReservationDetails";
+import AdminLogin from "./pages/AdminLogin";
+
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<AdminDashboard />} />
-        <Route path="/add-menu-item" element={<AddMenuItem />} />
-        <Route path="/menu" element={<AdminMenu />} />
-        <Route path="/orders" element={<AdminOrders />} />
-        <Route path="/profile" element={<AdminProfile />} />
-        <Route path="/customers" element={<AdminCustomers />} />
+
+        {/* الصفحة الرئيسية */}
+        <Route
+          path="/"
+          element={<AdminDashboard />}
+        />
+
+        {/* Login (نسيبه موجود لكن مش إجباري) */}
+        <Route
+          path="/login"
+          element={<AdminLogin />}
+        />
+
+        {/* Orders */}
+        <Route
+          path="/orders"
+          element={<AdminOrders />}
+        />
+
+        <Route
+          path="/orders/:id"
+          element={<OrderDetails />}
+        />
+
+        {/* Reservations */}
+        <Route
+          path="/reservations"
+          element={<AdminReservations />}
+        />
+
+        <Route
+          path="/reservations/:id"
+          element={<ReservationDetails />}
+        />
+
       </Routes>
     </BrowserRouter>
   );
