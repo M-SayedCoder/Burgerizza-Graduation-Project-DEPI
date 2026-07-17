@@ -230,15 +230,6 @@ Content-Type: application/json
 
 ---
 
-## 📞 التواصل
-
 للاستفسارات أو المساعدة:
 
-- 📧 البريد الإلكتروني: [your-email@example.com]
-- 🐙 GitHub: [github.com/your-username]
-
----
-
-**⭐ لا تنسى أن تضع نجمة (Star) على المستودع إذا أعجبك المشروع!**
-
----
+- 📧 البريد الإلكتروني: shehabaldeeb@gmail.com
