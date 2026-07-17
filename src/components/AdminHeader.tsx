@@ -3,28 +3,35 @@ import { NavLink, useNavigate } from "react-router-dom";
 function AdminHeader() {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    // لاحقًا احذف الـ token عند ربط Authentication
-    // localStorage.removeItem("token");
+  const user = JSON.parse(
+    localStorage.getItem("user") || "{}"
+  );
 
-    navigate("/login");
-  };
+  function handleLogout() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    // بما إننا مش مفعلين الـLogin دلوقتي
+      navigate("/login");
+  }
 
   return (
     <header className="admin-header border-bottom bg-white sticky-top">
       <div className="container py-3">
         <div className="row align-items-center">
 
+          {/* LEFT SIDE */}
+
           <div className="col-md-6 d-flex align-items-center gap-3">
 
             <NavLink
-  to="/"
-  className="text-decoration-none brand-link"
->
-  <span className="fw-bold fs-5">
-    Burgerizza
-  </span>
-</NavLink>
+              to="/"
+              className="text-decoration-none brand-link"
+            >
+              <span className="fw-bold fs-5">
+                Burgerizza
+              </span>
+            </NavLink>
 
             <nav className="d-none d-md-flex gap-3 admin-nav">
 
@@ -41,17 +48,6 @@ function AdminHeader() {
               </NavLink>
 
               <NavLink
-                to="/menu"
-                className={({ isActive }) =>
-                  `text-decoration-none ${
-                    isActive ? "active" : ""
-                  }`
-                }
-              >
-                Menu
-              </NavLink>
-
-              <NavLink
                 to="/orders"
                 className={({ isActive }) =>
                   `text-decoration-none ${
@@ -63,19 +59,21 @@ function AdminHeader() {
               </NavLink>
 
               <NavLink
-                to="/profile"
+                to="/reservations"
                 className={({ isActive }) =>
                   `text-decoration-none ${
                     isActive ? "active" : ""
                   }`
                 }
               >
-                Profile
+                Reservations
               </NavLink>
 
             </nav>
 
           </div>
+
+          {/* RIGHT SIDE */}
 
           <div className="col-md-6 d-flex justify-content-end align-items-center gap-3">
 
@@ -86,7 +84,7 @@ function AdminHeader() {
               </div>
 
               <div className="fw-semibold">
-                Mohamed
+                {user.name || "Admin"}
               </div>
 
             </div>
@@ -97,6 +95,7 @@ function AdminHeader() {
               onClick={handleLogout}
             >
               <i className="bi bi-box-arrow-right me-2"></i>
+
               Logout
             </button>
 
