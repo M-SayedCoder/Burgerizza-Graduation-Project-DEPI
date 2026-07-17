@@ -9,81 +9,81 @@
 
 ---
 
-## 📋 عن المشروع
+# 📋 About the Project
 
-Burgerizza هو نظام متكامل لإدارة المطاعم والطلب عبر الإنترنت. هذا الـ Backend يوفر واجهة API آمنة ومتطورة للتعامل مع:
+Burgerizza is a complete Restaurant Management and Online Ordering System. This backend provides a secure and scalable RESTful API that handles:
 
-- 🔐 **المصادقة** (تسجيل/دخول) باستخدام JWT
-- 👤 **إدارة المستخدمين** بصلاحيات مختلفة (عميل، مدير، أدمن)
-- 🍔 **إدارة المنيو** (إضافة، تعديل، حذف، عرض)
-- 🛡️ **حماية** كاملة للمسارات باستخدام RBAC
-
----
-
-## 🚀 التقنيات المستخدمة
-
-| التقنية | الاستخدام |
-|----------|-----------|
-| **Node.js** | بيئة التشغيل |
-| **Express.js** | إطار العمل الرئيسي |
-| **MongoDB Atlas** | قاعدة البيانات السحابية |
-| **Mongoose** | ODM للتعامل مع MongoDB |
-| **JWT** | المصادقة والتوكنات |
-| **bcryptjs** | تشفير كلمة المرور |
-| **express-validator** | التحقق من صحة المدخلات |
-| **dotenv** | إدارة متغيرات البيئة |
-| **cors** | السماح بالطلبات من الواجهة الأمامية |
-| **helmet** | حماية HTTP headers |
+* 🔐 User Authentication using JWT
+* 👤 User Management with Role-Based Access Control (Customer, Manager, Admin)
+* 🍔 Menu Management (Create, Read, Update, Delete)
+* 🛡️ Secure API Routes with JWT Authentication and RBAC
 
 ---
 
-## 📁 هيكل المشروع
+# 🚀 Technologies Used
 
-```
+| Technology             | Purpose                       |
+| ---------------------- | ----------------------------- |
+| **Node.js**            | Runtime Environment           |
+| **Express.js**         | Backend Framework             |
+| **MongoDB Atlas**      | Cloud Database                |
+| **Mongoose**           | MongoDB ODM                   |
+| **JWT (jsonwebtoken)** | Authentication                |
+| **bcryptjs**           | Password Hashing              |
+| **express-validator**  | Request Validation            |
+| **dotenv**             | Environment Variables         |
+| **cors**               | Cross-Origin Resource Sharing |
+| **helmet**             | HTTP Security Headers         |
+
+---
+
+# 📁 Project Structure
+
+```text
 Burgerizza-Backend/
 ├── controllers/
-│   ├── authController.js      # التحكم في المصادقة
-│   └── menuController.js      # التحكم في المنيو
+│   ├── authController.js
+│   └── menuController.js
 ├── models/
-│   ├── User.js                # نموذج المستخدم
-│   └── MenuItem.js            # نموذج الصنف
+│   ├── User.js
+│   └── MenuItem.js
 ├── routes/
-│   ├── authRoutes.js          # مسارات المصادقة
-│   └── menuRoutes.js          # مسارات المنيو
+│   ├── authRoutes.js
+│   └── menuRoutes.js
 ├── middlewares/
-│   └── auth.js                # JWT والصلاحيات
+│   └── auth.js
 ├── validators/
-│   ├── auth.validator.js      # التحقق من بيانات المصادقة
-│   └── menu.validator.js      # التحقق من بيانات المنيو
+│   ├── auth.validator.js
+│   └── menu.validator.js
 ├── utils/
-│   └── responseHandler.js     # توحيد الردود
-├── app.js                     # تهيئة التطبيق
-├── server.js                  # تشغيل السيرفر
-├── .env                       # متغيرات البيئة
-├── package.json               # الاعتماديات
-└── README.md                  # هذا الملف
+│   └── responseHandler.js
+├── app.js
+├── server.js
+├── .env
+├── package.json
+└── README.md
 ```
 
 ---
 
-## 🛠️ التثبيت والتشغيل
+# 🛠️ Installation & Setup
 
-### 1. استنساخ المشروع
+## 1. Clone the Repository
 
 ```bash
 git clone https://github.com/your-username/Burgerizza-Backend.git
 cd Burgerizza-Backend
 ```
 
-### 2. تثبيت الاعتماديات
+## 2. Install Dependencies
 
 ```bash
 npm install
 ```
 
-### 3. إعداد متغيرات البيئة
+## 3. Configure Environment Variables
 
-أنشئ ملف `.env` في المجلد الرئيسي:
+Create a `.env` file in the project root.
 
 ```env
 PORT=5000
@@ -92,43 +92,48 @@ JWT_SECRET=your_super_secret_key
 JWT_EXPIRE=7d
 ```
 
-### 4. تشغيل السيرفر
+## 4. Run the Server
 
-**وضع التطوير (مع إعادة تشغيل تلقائي):**
+### Development Mode
+
 ```bash
 npm run dev
 ```
 
-**وضع الإنتاج:**
+### Production Mode
+
 ```bash
 npm start
 ```
 
 ---
 
-## 📡 الـ API Endpoints
+# 📡 API Endpoints
 
-### قاعدة المسارات
+## Base URL
+
+```text
+http://localhost:5000/api
 ```
-BASE_URL = http://localhost:5000/api
-```
 
-### 🔐 المصادقة (Auth)
+---
 
-| الطريقة | المسار | الوظيفة | الحماية |
-|---------|--------|---------|---------|
-| POST | `/auth/register` | تسجيل مستخدم جديد | ❌ |
-| POST | `/auth/login` | تسجيل الدخول | ❌ |
-| GET | `/auth/me` | جلب بيانات المستخدم | ✅ (JWT) |
+# 🔐 Authentication
 
-#### مثال: تسجيل مستخدم جديد
+| Method | Endpoint         | Description              | Protected |
+| ------ | ---------------- | ------------------------ | --------- |
+| POST   | `/auth/register` | Register a new user      | ❌         |
+| POST   | `/auth/login`    | User login               | ❌         |
+| GET    | `/auth/me`       | Get current user profile | ✅         |
+
+## Register Example
 
 ```http
 POST /api/auth/register
 Content-Type: application/json
 
 {
-  "name": "أحمد محمد",
+  "name": "Ahmed Mohamed",
   "email": "ahmed@example.com",
   "password": "123456",
   "phone": "01012345678",
@@ -136,7 +141,7 @@ Content-Type: application/json
 }
 ```
 
-#### مثال: تسجيل الدخول
+## Login Example
 
 ```http
 POST /api/auth/login
@@ -148,16 +153,17 @@ Content-Type: application/json
 }
 ```
 
-**الـ Response:**
+### Successful Response
+
 ```json
 {
   "success": true,
-  "message": "تم تسجيل الدخول بنجاح",
+  "message": "Login successful",
   "data": {
     "token": "eyJhbGciOiJIUzI1NiIs...",
     "user": {
       "id": "67c8f2d4...",
-      "name": "أحمد محمد",
+      "name": "Ahmed Mohamed",
       "email": "ahmed@example.com",
       "role": "customer"
     }
@@ -165,71 +171,80 @@ Content-Type: application/json
 }
 ```
 
-### 🍔 المنيو (Menu)
+---
 
-| الطريقة | المسار | الوظيفة | الحماية |
-|---------|--------|---------|---------|
-| GET | `/menu` | جلب كل الأصناف | ❌ |
-| GET | `/menu/:id` | جلب صنف واحد | ❌ |
-| POST | `/menu` | إضافة صنف جديد | ✅ (مدير/أدمن) |
-| PUT | `/menu/:id` | تعديل صنف | ✅ (مدير/أدمن) |
-| DELETE | `/menu/:id` | حذف صنف | ✅ (مدير/أدمن) |
-| PATCH | `/menu/:id/toggle` | تبديل حالة التوفر | ✅ (مدير/أدمن) |
+# 🍔 Menu
+
+| Method | Endpoint           | Description              | Protected         |
+| ------ | ------------------ | ------------------------ | ----------------- |
+| GET    | `/menu`            | Get all menu items       | ❌                 |
+| GET    | `/menu/:id`        | Get a single menu item   | ❌                 |
+| POST   | `/menu`            | Create a new menu item   | ✅ (Manager/Admin) |
+| PUT    | `/menu/:id`        | Update a menu item       | ✅ (Manager/Admin) |
+| DELETE | `/menu/:id`        | Delete a menu item       | ✅ (Manager/Admin) |
+| PATCH  | `/menu/:id/toggle` | Toggle item availability | ✅ (Manager/Admin) |
 
 ---
 
-## 🔐 نظام المصادقة والصلاحيات
+# 🔐 Authentication & Authorization
 
-### آلية العمل
+## Authentication Flow
 
-1. **التسجيل**: تشفير كلمة المرور باستخدام `bcrypt`
-2. **تسجيل الدخول**: التحقق من البيانات وإرجاع `JWT token`
-3. **الطلبات المحمية**: إرسال التوكن في الـ Header:
-   ```
-   Authorization: Bearer <token>
-   ```
-4. **الصلاحيات**: التحقق من دور المستخدم (`role`)
+1. User registers with a hashed password using **bcrypt**.
+2. User logs in with email and password.
+3. A **JWT Token** is generated and returned.
+4. Protected routes require the following header:
 
-### الأدوار
+```http
+Authorization: Bearer <your_token>
+```
 
-| الدور | الصلاحيات |
-|-------|-----------|
-| **customer** | عرض المنيو، تسجيل دخول، عرض ملفه الشخصي |
-| **manager** | كل صلاحيات العميل + إدارة المنيو (CRUD) |
-| **admin** | كل صلاحيات المدير + لوحة تحكم |
+5. The server verifies the token and checks the user's role before allowing access.
 
 ---
 
-## 🛡️ الأمان
+# 👥 User Roles
 
-| الميزة | التنفيذ |
-|--------|---------|
-| **تشفير كلمة المرور** | `bcrypt` (10 rounds) |
-| **مصادقة JWT** | توكن بتوقيع إلكتروني |
-| **صلاحيات RBAC** | التحكم بالدور في كل مسار محمي |
-| **حماية HTTP** | `helmet` middleware |
-| **CORS** | التحكم في المصادر المسموحة |
-| **التحقق من المدخلات** | `express-validator` |
+| Role         | Permissions                                                 |
+| ------------ | ----------------------------------------------------------- |
+| **Customer** | Browse the menu, register, login, and view personal profile |
+| **Manager**  | Customer permissions + Full Menu Management (CRUD)          |
+| **Admin**    | Full system access including administrative operations      |
 
 ---
 
-## 👥 فريق العمل
+# 🛡️ Security Features
 
-| الدور | الاسم |
-|-------|-------|
-| **Team Leader** | [اسمك] |
-| **Frontend Developers** | [أسماء] |
-| **Backend Developers** | [أسماء] |
-| **QA Engineer** | [اسم] |
-
----
-
-## 📝 الترخيص
-
-هذا المشروع مقدم كجزء من مشروع تخرج DEPI 2026.
+| Feature                   | Implementation          |
+| ------------------------- | ----------------------- |
+| Password Hashing          | bcrypt (10 Salt Rounds) |
+| JWT Authentication        | Secure JSON Web Tokens  |
+| Role-Based Access Control | RBAC Middleware         |
+| HTTP Security             | Helmet                  |
+| CORS Protection           | Configurable CORS       |
+| Input Validation          | express-validator       |
 
 ---
 
-للاستفسارات أو المساعدة:
+# 👥 Team Members
 
-- 📧 البريد الإلكتروني: shehabaldeeb@gmail.com
+| Role                    | Member       |
+| ----------------------- | ------------ |
+| **Team Leader**         | Shehab Eldin |
+| **Frontend Developers** | Team Members |
+| **Backend Developers**  | Team Members |
+| **QA Engineer**         | Team Member  |
+
+---
+
+# 📄 License
+
+This project was developed as part of the **DEPI Graduation Project 2026**.
+
+---
+
+# 📬 Contact
+
+For questions or support:
+
+**Email:** **[shehabaldeeb@gmail.com](mailto:shehabaldeeb@gmail.com)**
