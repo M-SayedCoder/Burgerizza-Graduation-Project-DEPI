@@ -1,0 +1,150 @@
+.admin-dashboard {
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+.admin-header {
+  background: #fff;
+  border-bottom-color: #e5e7eb;
+}
+
+.brand-link {
+  color: #111827;
+}
+
+.brand-link:hover {
+  color: #0d6efd;
+}
+
+.admin-nav a {
+  position: relative;
+  color: #4b5563;
+  font-weight: 500;
+  padding: 8px 0;
+  transition: color 0.2s ease;
+}
+
+.admin-nav a:hover,
+.admin-nav a.active {
+  color: #ff7a00;
+}
+
+.admin-nav a.active::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  bottom: -17px;
+
+  height: 3px;
+
+  background: #ff7a00;
+
+  border-radius: 3px 3px 0 0;
+}
+.admin-status .small {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.metric-card,
+.dashboard-card {
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+}
+
+.metric-card {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 16px 35px
+    rgba(15, 23, 42, 0.08);
+}
+
+.metric-label {
+  font-size: 0.9rem;
+  color: #6b7280;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.08em;
+}
+.dashboard-title {
+  color: #000000;
+}
+.metric-value {
+  font-size: 2rem;
+  margin-bottom: 0;
+  color: #000000;
+}
+
+.metric-icon {
+  width: 44px;
+  height: 44px;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+}
+
+.admin-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-actions .list-group-item {
+  border-radius: 16px;
+
+  border: 1px solid #e5e7eb;
+}
+
+.admin-actions .action-icon {
+  flex-shrink: 0;
+
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-orange {
+  background: #ff7a00;
+  color: white;
+
+  border: none;
+}
+
+.btn-orange:hover {
+  background: #e96f00;
+  color: white;
+}
+
+@media (max-width: 767px) {
+  .admin-nav {
+    display: none !important;
+  }
+
+  .admin-status {
+    display: none;
+  }
+
+  .metric-value {
+    font-size: 1.6rem;
+  }
+}

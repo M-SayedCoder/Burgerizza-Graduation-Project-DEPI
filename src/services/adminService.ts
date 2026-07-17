@@ -32,7 +32,7 @@ export const adminService = {
   },
 
   async getOrdersSummary(): Promise<OrdersSummaryItem[]> {
-    if (!MOCK.admin) return adminApi.getOrdersSummary().then((r) => r.data.data);
+    if (!MOCK.admin) return adminApi.getManagerOrdersSummary().then((r) => r.data.data);
     await delay(300);
     return [
       { status: 'Pending',   count: 12,  revenue: 0     },
@@ -43,7 +43,7 @@ export const adminService = {
   },
 
   async getReservationsSummary(): Promise<ReservationsSummaryItem[]> {
-    if (!MOCK.admin) return adminApi.getReservationsSummary().then((r) => r.data.data);
+    if (!MOCK.admin) return adminApi.getManagerReservationsSummary().then((r) => r.data.data);
     await delay(300);
     return [
       { status: 'Confirmed', count: 45 },
