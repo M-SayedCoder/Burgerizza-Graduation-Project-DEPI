@@ -1,269 +1,309 @@
-<<<<<<< HEAD
-# React + TypeScript + Vite
+# 🍔 Burgerizza – Restaurant Management & Online Ordering System
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+### Graduation Project – DEPI Program 2026
 
-Currently, two official plugins are available:
+A modern full-stack restaurant management and online ordering platform designed to streamline restaurant operations and enhance customer experience.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+![React](https://img.shields.io/badge/Frontend-React-61DAFB?logo=react)
+![TypeScript](https://img.shields.io/badge/Language-TypeScript-3178C6?logo=typescript)
+![Node.js](https://img.shields.io/badge/Backend-Node.js-339933?logo=node.js)
+![Express](https://img.shields.io/badge/Framework-Express-000000?logo=express)
+![MongoDB](https://img.shields.io/badge/Database-MongoDB-47A248?logo=mongodb)
+![JWT](https://img.shields.io/badge/Auth-JWT-orange)
+![Status](https://img.shields.io/badge/Status-Graduation_Project-success)
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-=======
-# 🍔 Burgerizza - Backend API
-
-> Restaurant Management & Online Ordering System - Backend API
-
-![Node.js](https://img.shields.io/badge/Node.js-18.x-green)
-![Express](https://img.shields.io/badge/Express-4.18.x-blue)
-![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-green)
-![JWT](https://img.shields.io/badge/JWT-Authentication-orange)
+</div>
 
 ---
 
-## 📋 عن المشروع
+# 📖 Overview
 
-Burgerizza هو نظام متكامل لإدارة المطاعم والطلب عبر الإنترنت. هذا الـ Backend يوفر واجهة API آمنة ومتطورة للتعامل مع:
+Burgerizza is a comprehensive restaurant management and online ordering system developed as a graduation project within the Digital Egypt Pioneers Initiative (DEPI).
 
-- 🔐 **المصادقة** (تسجيل/دخول) باستخدام JWT
-- 👤 **إدارة المستخدمين** بصلاحيات مختلفة (عميل، مدير، أدمن)
-- 🍔 **إدارة المنيو** (إضافة، تعديل، حذف، عرض)
-- 🛡️ **حماية** كاملة للمسارات باستخدام RBAC
+The platform provides an integrated solution for customers, restaurant staff, managers, and administrators by combining online ordering, reservations, menu management, inventory tracking, and business monitoring into a single ecosystem.
 
 ---
 
-## 🚀 التقنيات المستخدمة
+# 🎯 Project Objectives
 
-| التقنية | الاستخدام |
-|----------|-----------|
-| **Node.js** | بيئة التشغيل |
-| **Express.js** | إطار العمل الرئيسي |
-| **MongoDB Atlas** | قاعدة البيانات السحابية |
-| **Mongoose** | ODM للتعامل مع MongoDB |
-| **JWT** | المصادقة والتوكنات |
-| **bcryptjs** | تشفير كلمة المرور |
-| **express-validator** | التحقق من صحة المدخلات |
-| **dotenv** | إدارة متغيرات البيئة |
-| **cors** | السماح بالطلبات من الواجهة الأمامية |
-| **helmet** | حماية HTTP headers |
+* Improve customer ordering experience.
+* Digitize restaurant operations.
+* Manage menus and inventory efficiently.
+* Enable online reservations.
+* Provide business insights through dashboards.
+* Implement secure authentication and authorization.
+* Deliver a scalable full-stack architecture.
 
 ---
 
-## 📁 هيكل المشروع
+# ✨ Key Features
 
-```
-Burgerizza-Backend/
-├── controllers/
-│   ├── authController.js      # التحكم في المصادقة
-│   └── menuController.js      # التحكم في المنيو
-├── models/
-│   ├── User.js                # نموذج المستخدم
-│   └── MenuItem.js            # نموذج الصنف
-├── routes/
-│   ├── authRoutes.js          # مسارات المصادقة
-│   └── menuRoutes.js          # مسارات المنيو
-├── middlewares/
-│   └── auth.js                # JWT والصلاحيات
-├── validators/
-│   ├── auth.validator.js      # التحقق من بيانات المصادقة
-│   └── menu.validator.js      # التحقق من بيانات المنيو
-├── utils/
-│   └── responseHandler.js     # توحيد الردود
-├── app.js                     # تهيئة التطبيق
-├── server.js                  # تشغيل السيرفر
-├── .env                       # متغيرات البيئة
-├── package.json               # الاعتماديات
-└── README.md                  # هذا الملف
+## Customer Features
+
+* User Registration & Login
+* JWT Authentication
+* Browse Restaurant Menu
+* Search & Filter Products
+* Add Items to Cart
+* Place Online Orders
+* Order Tracking
+* Reservation Booking
+* Profile Management
+* Notification System
+
+## Restaurant Management Features
+
+* Menu Management
+* Inventory Management
+* Order Management
+* Reservation Management
+* Customer Management
+* Notification Management
+
+## Admin Features
+
+* Admin Dashboard
+* Revenue Monitoring
+* Order Analytics
+* User Management
+* System Monitoring
+* Role-Based Access Control (RBAC)
+
+---
+
+# 🏗️ System Architecture
+
+```text
+┌─────────────────┐
+│   React Frontend │
+└────────┬────────┘
+         │ REST API
+         ▼
+┌─────────────────┐
+│ Express Backend │
+└────────┬────────┘
+         ▼
+┌─────────────────┐
+│    MongoDB      │
+└─────────────────┘
 ```
 
 ---
 
-## 🛠️ التثبيت والتشغيل
+# 🛠️ Technology Stack
 
-### 1. استنساخ المشروع
+## Frontend
+
+* React
+* TypeScript
+* Vite
+* React Router
+* Axios
+* Modern Responsive UI
+
+## Backend
+
+* Node.js
+* Express.js
+* JWT Authentication
+* Middleware Architecture
+* RESTful APIs
+
+## Database
+
+* MongoDB Atlas
+* Mongoose ODM
+
+## Security
+
+* JWT Authentication
+* Password Hashing (bcryptjs)
+* Protected Routes
+* Input Validation
+* Helmet Security Headers
+
+## Testing
+
+* Jest
+* Supertest
+
+---
+
+# 📂 Project Structure
+
+```text
+Burgerizza/
+│
+├── frontend/
+│   ├── src/
+│   ├── assets/
+│   ├── pages/
+│   ├── components/
+│   └── services/
+│
+├── backend/
+│   ├── controllers/
+│   ├── routes/
+│   ├── models/
+│   ├── middlewares/
+│   ├── tests/
+│   ├── uploads/
+│   ├── app.js
+│   └── server.js
+│
+├── docs/
+├── README.md
+└── .gitignore
+```
+
+---
+
+# 🔐 Authentication & Authorization
+
+The system uses JWT-based authentication with role-based access control.
+
+### Roles
+
+| Role     | Permissions                |
+| -------- | -------------------------- |
+| Customer | Place Orders, Reservations |
+| Manager  | Manage Operations          |
+| Admin    | Full System Access         |
+
+---
+
+# 🚀 Installation
+
+## 1. Clone Repository
 
 ```bash
-git clone https://github.com/your-username/Burgerizza-Backend.git
-cd Burgerizza-Backend
+git clone https://github.com/your-username/burgerizza.git
+cd burgerizza
 ```
 
-### 2. تثبيت الاعتماديات
+## 2. Backend Setup
 
 ```bash
+cd backend
+
 npm install
 ```
 
-### 3. إعداد متغيرات البيئة
-
-أنشئ ملف `.env` في المجلد الرئيسي:
+Create `.env`
 
 ```env
 PORT=5000
-MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/burgerizza
-JWT_SECRET=your_super_secret_key
-JWT_EXPIRE=7d
+MONGO_URI=your_mongodb_connection
+JWT_SECRET=your_secret_key
 ```
 
-### 4. تشغيل السيرفر
+Run backend:
 
-**وضع التطوير (مع إعادة تشغيل تلقائي):**
 ```bash
 npm run dev
 ```
 
-**وضع الإنتاج:**
+---
+
+## 3. Frontend Setup
+
 ```bash
-npm start
+cd frontend
+
+npm install
+
+npm run dev
 ```
 
 ---
 
-## 📡 الـ API Endpoints
+# 📡 API Documentation
 
-### قاعدة المسارات
+The backend provides RESTful APIs for:
+
+* Authentication
+* Users
+* Menu
+* Orders
+* Reservations
+* Inventory
+* Notifications
+* Admin Dashboard
+
+Swagger documentation is available through:
+
+```bash
+/api-docs
 ```
-BASE_URL = http://localhost:5000/api
-```
-
-### 🔐 المصادقة (Auth)
-
-| الطريقة | المسار | الوظيفة | الحماية |
-|---------|--------|---------|---------|
-| POST | `/auth/register` | تسجيل مستخدم جديد | ❌ |
-| POST | `/auth/login` | تسجيل الدخول | ❌ |
-| GET | `/auth/me` | جلب بيانات المستخدم | ✅ (JWT) |
-
-#### مثال: تسجيل مستخدم جديد
-
-```http
-POST /api/auth/register
-Content-Type: application/json
-
-{
-  "name": "أحمد محمد",
-  "email": "ahmed@example.com",
-  "password": "123456",
-  "phone": "01012345678",
-  "role": "customer"
-}
-```
-
-#### مثال: تسجيل الدخول
-
-```http
-POST /api/auth/login
-Content-Type: application/json
-
-{
-  "email": "ahmed@example.com",
-  "password": "123456"
-}
-```
-
-**الـ Response:**
-```json
-{
-  "success": true,
-  "message": "تم تسجيل الدخول بنجاح",
-  "data": {
-    "token": "eyJhbGciOiJIUzI1NiIs...",
-    "user": {
-      "id": "67c8f2d4...",
-      "name": "أحمد محمد",
-      "email": "ahmed@example.com",
-      "role": "customer"
-    }
->>>>>>> origin/shehab-branch
-  }
-}
-```
-
-<<<<<<< HEAD
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
-=======
-### 🍔 المنيو (Menu)
-
-| الطريقة | المسار | الوظيفة | الحماية |
-|---------|--------|---------|---------|
-| GET | `/menu` | جلب كل الأصناف | ❌ |
-| GET | `/menu/:id` | جلب صنف واحد | ❌ |
-| POST | `/menu` | إضافة صنف جديد | ✅ (مدير/أدمن) |
-| PUT | `/menu/:id` | تعديل صنف | ✅ (مدير/أدمن) |
-| DELETE | `/menu/:id` | حذف صنف | ✅ (مدير/أدمن) |
-| PATCH | `/menu/:id/toggle` | تبديل حالة التوفر | ✅ (مدير/أدمن) |
 
 ---
 
-## 🔐 نظام المصادقة والصلاحيات
+# 🧪 Testing
 
-### آلية العمل
+Run automated tests:
 
-1. **التسجيل**: تشفير كلمة المرور باستخدام `bcrypt`
-2. **تسجيل الدخول**: التحقق من البيانات وإرجاع `JWT token`
-3. **الطلبات المحمية**: إرسال التوكن في الـ Header:
-   ```
-   Authorization: Bearer <token>
-   ```
-4. **الصلاحيات**: التحقق من دور المستخدم (`role`)
+```bash
+npm test
+```
 
-### الأدوار
+Tests include:
 
-| الدور | الصلاحيات |
-|-------|-----------|
-| **customer** | عرض المنيو، تسجيل دخول، عرض ملفه الشخصي |
-| **manager** | كل صلاحيات العميل + إدارة المنيو (CRUD) |
-| **admin** | كل صلاحيات المدير + لوحة تحكم |
+* Authentication Tests
+* Menu Tests
+* Inventory Tests
+* Route Tests
+* Validation Tests
 
 ---
 
-## 🛡️ الأمان
+# 📈 Future Enhancements
 
-| الميزة | التنفيذ |
-|--------|---------|
-| **تشفير كلمة المرور** | `bcrypt` (10 rounds) |
-| **مصادقة JWT** | توكن بتوقيع إلكتروني |
-| **صلاحيات RBAC** | التحكم بالدور في كل مسار محمي |
-| **حماية HTTP** | `helmet` middleware |
-| **CORS** | التحكم في المصادر المسموحة |
-| **التحقق من المدخلات** | `express-validator` |
-
----
-
-## 👥 فريق العمل
-
-| الدور | الاسم |
-|-------|-------|
-| **Team Leader** | [اسمك] |
-| **Frontend Developers** | [أسماء] |
-| **Backend Developers** | [أسماء] |
-| **QA Engineer** | [اسم] |
+* Payment Gateway Integration
+* AI-Based Recommendations
+* Real-Time Notifications
+* Mobile Application
+* Multi-Restaurant Support
+* Advanced Analytics Dashboard
+* Docker Deployment
+* CI/CD Pipeline
 
 ---
 
-## 📝 الترخيص
+# 👨‍💻 Development Team
 
-هذا المشروع مقدم كجزء من مشروع تخرج DEPI 2026.
+### Graduation Project Team
+
+* Frontend Developers
+* Backend Developers
+* Database Engineers
+* QA & Testing Contributors
+
+Developed as part of the **Digital Egypt Pioneers Initiative (DEPI)**.
 
 ---
 
-للاستفسارات أو المساعدة:
+# 🎓 Academic Information
 
-- 📧 البريد الإلكتروني: shehabaldeeb@gmail.com
->>>>>>> origin/shehab-branch
+**Project Title:** Burgerizza – Restaurant Management & Online Ordering System
+
+**Project Type:** Graduation Project
+
+**Program:** Digital Egypt Pioneers Initiative (DEPI)
+
+**Year:** 2026
+
+---
+
+# 📜 License
+
+This project is developed for educational and academic purposes as a graduation project.
+
+---
+
+<div align="center">
+
+### ⭐ If you like this project, don't forget to give it a star.
+
+**Built with dedication, teamwork, and modern software engineering practices.**
+
+</div>
